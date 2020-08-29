@@ -1,0 +1,14 @@
+# Setting host
+- hosts: localhost
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Create user minikube
+      user: name=minikube password=deH5TfyXWhWuc
+
+    - name: Create minikube user as sudoers
+      lineinfile:
+        path: /etc/sudoers
+        insertafter: '^## Allow root to run'
+        line: 'minikube    ALL=(ALL)       ALL'

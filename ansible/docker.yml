@@ -1,0 +1,82 @@
+# Setting host
+- hosts: localhost
+  become: yes
+  gather_facts: false
+
+  tasks:
+  - name: install epel release
+    yum:
+      name: epel-release
+      state: latest
+
+  - name: Docker Repository
+    get_url:
+      url: https://download.docker.com/linux/centos/docker-ce.repo
+      dest: /etc/yum.repos.d/docker-ce.repo
+      mode: 0700
+      force_basic_auth: yes
+
+  - name: Update repository
+    yum: name=*
+         state=latest
+
+  - name: Install development tools
+    yum:
+      name: "@Development tools"
+      state: present
+
+  - name: Remove docker old version
+    yum:
+      name: [ 'docker',
+              'docker-common',
+              'container-selinux',
+              'docker-selinux',
+              'docker-engine',
+              'docker-engine-selinux']
+      state: absent
+
+  - name: Install docker
+    yum:
+      name: docker-ce
+      state: latest
+
+  - name:  Install python-pip
+    yum:
+      name: python3-pip
+      state: latest
+
+  - name: Upgrade pip
+    pip:
+      name: pip
+      extra_args: --upgrade
+      executable: pip3.8
+
+  - name: Install docker-compose
+    pip:
+      name: docker-compose
+      state: latest
+      executable: pip3.6
+
+  - name: Install Pip ansible
+    pip:
+      name: ansible
+      state: latest
+      executable: pip3.8
+
+  - name: Install Openshift
+    pip:
+      name: openshift
+      state: latest
+      executable: pip3.6
+
+  # Restart and enable Docker service
+  - service:
+      name: docker
+      state: restarted
+      enabled: yes
+
+  - name: 'add users to docker group'
+    user:
+      name: 'minikube'
+      groups: 'docker'
+      append: 'yes'
